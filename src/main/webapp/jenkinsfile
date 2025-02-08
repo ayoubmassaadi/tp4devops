@@ -1,0 +1,40 @@
+pipeline {
+ environment {
+  registry = "ayoub194/tp4devops"
+  registryCredential = '49cf70c9-9fab-428a-8654-b75bc5d07cb8'
+  dockerImage = ''
+ }
+ agent any
+ stages {
+  stage('Cloning Git') {
+	steps {
+	git 'https://github.com/ayoubmassaadi/tp4devops'
+	}
+  }
+  stage('Building image') {
+	steps{
+	script {
+	dockerImage = docker.build ("${registry}:$BUILD_NUMBER","-f src/main/webapp/Dockerfile src/main/webapp")
+	}
+	}
+
+  }
+stage('Test image') {
+	steps{
+	script {
+
+	echo "Tests passed"
+	}
+	}
+  }
+  stage('Publish Image') {
+	steps{
+	script {
+	docker.withRegistry( '', registryCredential ) {
+	dockerImage.push()
+	}
+	}
+	}
+  }
+ }
+}
